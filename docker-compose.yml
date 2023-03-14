@@ -1,0 +1,62 @@
+version: '2.3'
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: 'false'
+    ipam:
+      driver: default
+      config:
+        - subnet: '192.168.91.0/24'
+          gateway: '192.168.91.1'
+
+services:
+  ###
+  one:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - '192.168.91.1:8080:8080'
+    restart: always
+    stop_grace_period: 3s
+    environment:
+      - BALENA_SERVICE_NAME=one
+  ###
+  two:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - one
+    ports:
+      - '192.168.91.1:8081:8080'
+    restart: always
+    stop_grace_period: 3s
+    environment:
+      - BALENA_SERVICE_NAME=two
+  ###
+  three:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '192.168.91.1:8082:8080'
+    restart: always
+    stop_grace_period: 3s
+    environment:
+      - BALENA_SERVICE_NAME=three
+  ###
+  four:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - three
+    ports:
+      - '192.168.91.1:8083:8080'
+    restart: always
+    stop_grace_period: 3s
+    environment:
+      - BALENA_SERVICE_NAME=four
